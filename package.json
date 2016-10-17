@@ -1,0 +1,28 @@
+{
+  "name": "mirrormirror",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "angular": "^1.5.8",
+    "angular-local-storage": "^0.5.0",
+    "angular-moment": "^1.0.0",
+    "angular-route": "^1.5.8",
+    "browserify": "^13.1.0",
+    "deepmerge": "^1.2.0",
+    "dotenv": "^2.0.0",
+    "ector": "^1.0.1",
+    "express": "^4.14.0",
+    "express-browserify": "^1.0.2",
+    "file-concept-network": "^0.1.2",
+    "google-search": "0.0.4",
+    "jquery": "^3.1.1",
+    "moment": "^2.15.1",
+    "underscore": "^1.8.3"
+  }
+}

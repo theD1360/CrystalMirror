@@ -1,0 +1,4 @@
+<h1 class="card-title">{{time | date: "longDate"}}</h1>
+<div>
+    <div class="col s2" ng-repeat="day in monthDays" ng-class="{'outline': day.isToday}">{{day.number}}</div>
+</div>

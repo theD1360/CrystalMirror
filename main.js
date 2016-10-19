@@ -11,6 +11,7 @@ browserify.browserify.transform(stringify, {
             appliesTo: { includeExtensions: ['.hjs', '.html', '.whatever'] }
 });
 
+app.use(express.static('public'));
 
 app.get('/main.js', browserify);
 
@@ -23,7 +24,6 @@ app.get('*', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
 
-app.use(express.static('public'));
 
 
 app.listen(process.env.PORT, function(){

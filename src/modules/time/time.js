@@ -8,7 +8,7 @@ angular.module('MirrorMirror').directive('time', function(){
         scope:{
             data: '='
         },
-        templateUrl: '/views/time.html',
+        template: require('./time.html'),
         controller: ['$scope', '$rootScope', '$interval', function(scope, rootScope, $interval){
             scope.time = new Date();
             $interval(function(){

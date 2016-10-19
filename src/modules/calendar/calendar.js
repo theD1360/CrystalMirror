@@ -8,7 +8,7 @@ angular.module('MirrorMirror').directive('calendar', function(){
         scope:{
             data: '='
         },
-        templateUrl: '/views/calendar.html',
+        template: require('./calendar.html'),
         controller: ['$scope', '$rootScope', '$interval', function(scope, rootScope, $interval){
             scope.time = new Date();
             scope.month = scope.time.getMonth();

@@ -3,183 +3,36 @@
 var angular = require("angular");
 var moment = require('moment');
 var _ = require('underscore');
-window.annyang = require('./libs/annyang');
 
 require('angular-local-storage');
 require('angular-route');
 
 var app = angular.module("MirrorMirror", ['LocalStorageModule', 'ngRoute']);
 
-app.config(['$routeProvider','$locationProvider' ,'localStorageServiceProvider' ,function ($routeProvider, $locationProvider,localStorageServiceProvider) {
+/**
+ * Router split out
+ */
+require('./router');
 
-    $routeProvider
-        .when('/help', {
-            templateUrl: '/views/help.html',
-            controller: function(){}
-        })
-        .when('/', {
-            templateUrl: '/views/main.html',
-            controller: function(){}
-        });
+/**
+ * services split out
+ */
+require('./services');
 
-    // configure html5 to get links working on jsfiddle
-    $locationProvider.html5Mode(true);
-
-    localStorageServiceProvider
-        .setPrefix('MirrorMirror')
-        .setNotify(true, true)
-
-}]);
-
-app.service('layout', ['localStorageService', function(storage){
-    // mutli dimensional array of rows and columns
-    var layout =  storage.get('layout') || [
-        [
-            {name:'welcome', size:5, data:{}},
-            {name:'empty-slot', size:4},
-            {name:'time', size:3}
-        ],
-        [
-            {name:'empty-slot', size:4},
-            {name:'empty-slot', size:4},
-            {name:'empty-slot', size:4}
-        ],
-        [
-            {name:'empty-slot', size:5},
-            {name:'empty-slot', size:4},
-            {name:'calendar', size:3}
-        ]
-    ];
-
-    layout.addRow = function(colCount){
-        layout.push([
-            {name:'empty-slot', size:3},
-            {name:'empty-slot', size:3},
-            {name:'empty-slot', size:3},
-            {name:'empty-slot', size:3}
-        ]);
-    };
-
-
-    layout.addCell = function(row){
-        layout[row].push(
-            {name:'empty-slot', size:3}
-        );
-        layout.fixCells();
-    };
-
-    layout.removeCell = function(cell){
-        layout[cell.row].splice(cell.column, 1);
-        layout.fixCells();
-    };
-
-    layout.swapCell = function(subject, target){
-
-        var targetTmp = layout[target.row][target.column];
-
-        layout[target.row][target.column] = layout[subject.row][subject.column];
-        layout[subject.row][subject.column] = targetTmp;
-
-        layout.fixCells();
-    };
-
-    layout.setCellToModule = function(cell, module){
-        layout[cell.row][cell.column].name = module;
-    };
-
-    layout.resizeCell = function(cell, size){
-        layout[cell.row][cell.column].size = size;
-        layout.fixCells();
-    };
-
-    layout.increaseWidth = function(cell){
-        ++layout[cell.row][cell.column].size;
-        layout.fixCells();
-    };
-
-    layout.decreaseWidth = function(cell){
-        --layout[cell.row][cell.column].size;
-        layout.fixCells();
-    };
-
-
-    layout.swapRow = function(subject, target){
-
-        var targetTmp = layout[target.row];
-
-        layout[target.row] = layout[subject.row];
-        layout[subject.row] = targetTmp;
-
-    };
-
-    layout.fixCells = function(){
-        var sum = function(a, b){return a+b};
-        for(var r in layout){
-            if(_.reduce(_.pluck(layout[r], 'size'), sum) > 12) {
-
-                for(var c in layout[r]){
-                    if (_.reduce(_.pluck(layout[r], 'size'), sum) > 12) {
-                        if (layout[r][c].name == 'empty-slot') {
-                            --layout[r][c].size;
-                        }
-                    }
-
-                }
-            } else {
-                for(var c in layout[r]){
-                    if (_.reduce(_.pluck(layout[r], 'size'), sum) < 12) {
-                        if (layout[r][c].name == 'empty-slot') {
-                            ++layout[r][c].size;
-                        }
-                    }
-
-                }
-            }
-
-        }
-    };
-
-    layout.removeRow = function(row){
-
-        layout.splice(row, 1);
-
-    };
-
-    layout.save = function(){
-      storage.set('layout', layout);
-    };
-
-
-    return layout;
-
-}]);
-
-app.service('states', function(){
-    var states = {
-        showColumns: false
-    };
-
-    return states;
-});
-
-// pass the toast
-app.service('materialize', ['$window', function(window){
-    return window.Materialize;
-}]);
-
-// pass the toast
-app.service('annyang', ['$window', function(window){
-    return window.annyang;
-}]);
-
+/**
+ * Main application logic
+ */
 app.run(['$window', '$location', '$rootScope', 'annyang' ,'layout', 'states', 'materialize', function(window, location ,scope, annyang, layout, states, material){
 
+    // TODO: Move these dependencies into services
     var synth = require('./libs/text-to-speech');
-
     var botController = require('./bot-helper')();
+    var GoogleSearch = require('google-search');
+
+    // start the speech synthesis helper
     var speaker = new synth("Google US English");
 
-    var GoogleSearch = require('google-search');
+    // configure the google search module
     var googleSearch = new GoogleSearch({
         key: 'AIzaSyDlW-v-95FixjfVysJWlnquMaGJCoOERzY',
         cx: '009559986388052249737:4vu6h-gj9oe'
@@ -188,7 +41,7 @@ app.run(['$window', '$location', '$rootScope', 'annyang' ,'layout', 'states', 'm
     scope.layout = layout;
     scope.states = states;
 
-    scope.penny = {
+    scope.crystal = {
         botname : botController.get('botname'),
         username: botController.get('username'),
         error: null,
@@ -197,46 +50,50 @@ app.run(['$window', '$location', '$rootScope', 'annyang' ,'layout', 'states', 'm
     };
 
 
+    // before speaking
     speaker.onBefore(function(text){
-        scope.penny.said = text;
-        material.toast($("<span><i class=\"material-icons\">question_answer</i>"+scope.penny.said+"</span>"), 4000);
+        scope.crystal.said = text;
+        material.toast($("<span><i class=\"material-icons\">question_answer</i>"+scope.crystal.said+"</span>"), 4000);
 
         if (annyang.isListening())
             annyang.pause();
     });
 
+    // after speaking
     speaker.onAfter(function(msg){
         if (!annyang.isListening())
             annyang.resume();
     });
 
 
-
+    // speech recognition event handlers
     annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-        scope.penny.heard = userSaid;
-        material.toast($("<span><i class=\"material-icons\">hearing</i> "+scope.penny.heard+"</span>"), 4000);
+        scope.crystal.heard = userSaid;
+        material.toast($("<span><i class=\"material-icons\">hearing</i> "+scope.crystal.heard+"</span>"), 4000);
     });
 
     annyang.addCallback('resultNoMatch', function(userSaid, commandText, phrases) {
-        scope.penny.error = "Sorry, I couldn't understand you.";
-        scope.penny.heard = userSaid.pop();
-        material.toast($("<span><i class=\"material-icons\">hearing</i> "+scope.penny.heard+"</span>"), 4000);
-        material.toast($("<span><i class=\"material-icons\">error</i> "+scope.penny.error+"</span>"), 4000);
+        scope.crystal.error = "Sorry, I couldn't understand you.";
+        scope.crystal.heard = userSaid.pop();
+        material.toast($("<span><i class=\"material-icons\">hearing</i> "+scope.crystal.heard+"</span>"), 4000);
+        material.toast($("<span><i class=\"material-icons\">error</i> "+scope.crystal.error+"</span>"), 4000);
 
     });
 
     annyang.addCallback('error', function() {
-        scope.penny.error = "Speech recognition error.";
-        material.toast($("<span><i class=\"material-icons\">error</i> "+scope.penny.error+"</span>"), 4000);
+        scope.crystal.error = "Speech recognition error.";
+        material.toast($("<span><i class=\"material-icons\">error</i> "+scope.crystal.error+"</span>"), 4000);
 
     });
 
+    // anything command
     var anything = {
         "*anything": function(convo){
             speaker.speak(botController.replyTo(convo));
         }
     };
 
+    // search function for bot search function
     function search(term) {
         botController.replyTo('tell me about'+ term);
 
@@ -247,10 +104,12 @@ app.run(['$window', '$location', '$rootScope', 'annyang' ,'layout', 'states', 'm
 
             var snippet = "";
             if (response.items) {
+                // teach the bot something
                 for(var i in response.items) {
                     snippet = response.items[i].snippet.replace(/\.\.\.|\n|\s\s+/g, " ");
                     var sentences = snippet.match(/(\w|\s|\d|'|,|\(|\))*[\!|\.|\?]/g);
                     for(var s in sentences) {
+                        // this is pretty funny but probably not very useful
                         botController.replyTo(sentences[s]);
                     }
                 }
@@ -398,16 +257,15 @@ app.directive('card', function($compile) {
     };
 });
 
-// default empty slot
-app.directive('emptySlot', function(){
-    return {
-        templateUrl: '/views/slot.html'
-    };
-});
 
-require('./modules/welcome');
-require('./modules/calendar');
-require('./modules/time');
+/**
+ * Modularized pieces of the app.
+ * This makes developing new features less messy.
+ */
+require('./modules/help/help');
+require('./modules/welcome/welcome');
+require('./modules/calendar/calendar');
+require('./modules/time/time');
 
 
 

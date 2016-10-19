@@ -60,4 +60,7 @@ General:
 
 **Contributions**
 
-Contributions are welcome.
+Contributions are welcome. 
+
+When developing new modules please follow the module patterns used in `./src/modules`
+Pull requests that do not follow this pattern will be automatically rejected.

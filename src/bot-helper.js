@@ -59,7 +59,7 @@ module.exports = function() {
             var response = this.ector.generateResponse();
             previousResponseNodes = response.nodes;
 
-            // allow penny to take actions with her own words
+            // allow crystal to take actions with her own words
             this.selfAwareness(response.sentence);
 
             return response.sentence;

@@ -8,11 +8,11 @@ angular.module('MirrorMirror').directive('welcome', function(){
         scope:{
             data: '='
         },
-        templateUrl: '/views/welcome.html',
+        template: require('./welcome.html'),
         controller: ['$scope', '$rootScope', function(scope, rootScope){
-            scope.penny = rootScope.penny;
-            rootScope.$watch('penny', function(){
-                scope.penny = rootScope.penny;
+            scope.crystal = rootScope.crystal;
+            rootScope.$watch('crystal', function(){
+                scope.crystal = rootScope.crystal;
 
             });
         }]

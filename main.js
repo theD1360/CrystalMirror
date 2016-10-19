@@ -5,7 +5,7 @@ var app = express();
 var stringify = require('stringify');
 var expressBrowserify = require('express-browserify');
 
-var browserify =expressBrowserify('./src/app.js', {watch:true});
+var browserify =expressBrowserify('./src/app.js', {debug:true, watch:true});
     // b is the expressBrowserify instance.
 browserify.browserify.transform(stringify, {
             appliesTo: { includeExtensions: ['.hjs', '.html', '.whatever'] }

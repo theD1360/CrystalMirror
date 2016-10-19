@@ -1,7 +1,9 @@
 Crystal Mirror
 ==============
 
-Magic Mirror written in nodejs.
+Nodejs magic mirror with voice recognition and speech synthesis.
+
+[Live demo](http://crystal-mirror.herokuapp.com/)
 
 
 **Installation**
@@ -12,6 +14,7 @@ mv .env.example .env
 npm install
 npm start
 ```
+
 Then navigate to the http://localhost:PORT replace PORT 
 with the specified in your .env
 
